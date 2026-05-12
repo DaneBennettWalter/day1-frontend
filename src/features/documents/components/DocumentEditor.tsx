@@ -27,6 +27,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
+import { ContactPicker } from '@/features/contacts/components/ContactPicker'
+import { useContact } from '@/features/contacts/hooks'
 import {
   documentInputSchema,
   type DocumentInputForm,
@@ -234,6 +236,17 @@ export function DocumentEditor({
           {/* Customer */}
           <section className="space-y-4 rounded-md border bg-card p-5">
             <h2 className="text-sm font-semibold">Customer & property</h2>
+            <CustomerContactPicker
+              setValue={(name, email, phone, address) => {
+                reset(
+                  {
+                    ...getValues(),
+                    customer: { name, email, phone, address },
+                  },
+                  { keepDirty: true }
+                )
+              }}
+            />
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <Field
                 label="Customer name"
@@ -343,7 +356,9 @@ interface FieldProps {
 function Field({ label, error, hint, children }: FieldProps) {
   return (
     <div className="space-y-1">
-      <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
+      <Label className="text-xs font-medium text-muted-foreground">
+        {label}
+      </Label>
       {children}
       {error ? (
         <p className="text-xs text-destructive">{error}</p>
@@ -361,7 +376,12 @@ interface TypeSpecificProps {
   errors: ReturnType<typeof useForm<DocumentInputForm>>['formState']['errors']
 }
 
-function TypeSpecificFields({ type, register, control, errors }: TypeSpecificProps) {
+function TypeSpecificFields({
+  type,
+  register,
+  control,
+  errors,
+}: TypeSpecificProps) {
   if (type === 'invoice') {
     return (
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -416,10 +436,8 @@ function TasksField({
             value={(field.value ?? []).join('\n')}
             onChange={(e) =>
               field.onChange(
-                e.target.value
-                  .split('\n')
-                  .map((s) => s)
-                  // Preserve user blank lines while typing; trim+filter happens at save.
+                e.target.value.split('\n').map((s) => s)
+                // Preserve user blank lines while typing; trim+filter happens at save.
               )
             }
             onBlur={() => {
@@ -431,6 +449,46 @@ function TasksField({
             }}
           />
         )}
+      />
+    </Field>
+  )
+}
+
+function CustomerContactPicker({
+  setValue,
+}: {
+  setValue: (
+    name: string,
+    email?: string,
+    phone?: string,
+    address?: string
+  ) => void
+}) {
+  const [selectedId, setSelectedId] = useState<string | undefined>()
+  const { data: contact } = useContact(selectedId ?? '')
+
+  useEffect(() => {
+    if (contact) {
+      const address = contact.address
+        ? [
+            contact.address.street,
+            contact.address.city,
+            contact.address.state,
+            contact.address.zip,
+          ]
+            .filter(Boolean)
+            .join(', ')
+        : undefined
+      setValue(contact.name, contact.email, contact.phone, address)
+    }
+  }, [contact, setValue])
+
+  return (
+    <Field label="Quick-fill from contact">
+      <ContactPicker
+        value={selectedId}
+        onChange={setSelectedId}
+        placeholder="Select a contact to auto-fill customer fields..."
       />
     </Field>
   )

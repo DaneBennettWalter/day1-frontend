@@ -8,6 +8,7 @@ Professional-grade React + TypeScript + Vite scaffold built for production.
 - **Settings** (P2) — General, AI (API key), Branding, Team. Server-side health probe.
 - **AI Chat** (P3) — Standalone `/chat` route with streaming responses, markdown rendering, multi-session sidebar, and resilient retry. See [AI Chat](#ai-chat-phase-3) below.
 - **Documents** (P4) — List + kanban + editor for bids, invoices, estimates, work orders, and proposals. Material/labor line items with tax + overhead calculations, drag-and-drop status pipeline, AI-assisted generation, browser print/PDF. See [Documents](#documents-phase-4) below.
+- **Contacts** (P5) — Full CRUD contact management with 7 types (customer, vendor, contractor, employee, tenant, owner, other), reusable ContactPicker component integrated into document editor. See [Contacts](#contacts-phase-5) below.
 
 ## Tech Stack
 
@@ -308,6 +309,102 @@ No PDF library. `index.css` defines a `@media print` stylesheet that hides every
 - `aiParse.test.ts` — snake_case, percent-rate coercion, customer extraction, invalid line items dropped, currency stripping, boolean parsing, type fallback.
 - `hooks.test.ts` — blank-document defaults, query key namespacing.
 
+## Contacts (Phase 5)
+
+Full-featured contact management system with 7 contact types and deep integration into the document workflow.
+
+### Routes
+
+- `/contacts` — List view with search, type filter, sortable table. Empty state for first-time users.
+- `/contacts/new` — Create modal (inline, no separate route).
+- `/contacts/:id` — Detail view with edit mode toggle.
+
+### Contact Types
+
+1. **Customer** — Blue badge
+2. **Vendor** — Green badge
+3. **Contractor** — Purple badge
+4. **Employee** — Orange badge
+5. **Tenant** — Pink badge
+6. **Owner** — Indigo badge
+7. **Other** — Gray badge
+
+### Endpoints Consumed
+
+- `GET /api/contacts` — list with optional `q` (search), `type` filter, `sortBy`, `sortOrder`.
+- `POST /api/contacts` — create.
+- `GET /api/contacts/:id` — fetch single.
+- `PUT /api/contacts/:id` — update.
+- `DELETE /api/contacts/:id` — delete with confirmation dialog.
+
+### Features
+
+#### Contact Fields
+
+- **Name** (required)
+- **Type** (required, dropdown)
+- **Email** (validated format)
+- **Phone**
+- **Company**
+- **Address** (street, city, state, zip)
+- **Notes** (textarea)
+
+#### ContactPicker Component
+
+Reusable searchable combobox built on cmdk + Radix Popover.
+
+**Props:**
+
+- `value` — selected contact ID
+- `onChange` — callback with contact ID or undefined
+- `onCreateNew` — optional, shows "Create new contact" action
+- `placeholder` — default: "Select contact..."
+- `disabled`
+
+**Display format:** `Name · Company · [Type Badge]`
+
+**Integration:** Wired into document editor's customer section. Selecting a contact auto-fills name, email, phone, and formatted address (read-only suggestion; user can still edit fields manually).
+
+#### List View
+
+- **Search** — filters by name, email, company (debounced client-side; real filter is server-side via `q` param).
+- **Type filter** — dropdown, "All Types" + each of the 7.
+- **Table columns:** Name, Type (badge), Company, Contact (email + phone icons), Actions (delete).
+- **Row click** — navigate to detail.
+- **Empty state** — "No contacts yet" with prompt to create first.
+
+#### Detail / Edit View
+
+- **View mode:** Display all fields with icons (Building, Mail, Phone, MapPin). Metadata (created/updated timestamps) at bottom.
+- **Edit mode:** Inline toggle; same `<ContactForm>` used for create/edit. "Cancel" discards, "Update Contact" saves.
+- **Delete:** Available in list view only (keeps detail page simple).
+
+### State + Caching
+
+- TanStack Query with keys namespaced under `['contacts', ...]`.
+- Mutations (`create`, `update`, `delete`) invalidate list + detail queries and show toast feedback.
+- No optimistic updates (simpler than documents' kanban; instant server round-trip is fine).
+
+### Validation
+
+- Zod schema: `contactInputSchema`.
+- Email format checked.
+- Phone accepts any string (formatting optional, US-preferred but not enforced).
+- Empty optional fields normalized to `undefined` before API send.
+
+### Tests
+
+- `schemas.test.ts` — required fields, email validation, type enum, normalization of empty strings.
+
+### Document Editor Integration
+
+The document editor's "Customer & property" section now includes a `<CustomerContactPicker>` above the manual input fields. Selecting a contact:
+
+1. Populates `customer.name`, `customer.email`, `customer.phone`.
+2. Formats `customer.address` as a single-line string (`street, city, state zip`).
+3. User can still manually edit any field after auto-fill.
+4. Form's `isDirty` flag respects the change (keeps unsaved-changes guard working).
+
 ## Architecture Decisions
 
 ### 1. **Vite over Create React App**
@@ -507,13 +604,36 @@ Access in code via `import.meta.env.VITE_API_URL`.
 - `GET /api/health` - Check AI availability
 - `POST /api/settings/api-keys` - Save API key
 
-### 🔜 Phase 3: AI Chat (Standalone)
+### ✅ Phase 3: AI Chat (v0.4.0)
 
-Standalone AI chat interface proving the backend proxy integration before document editor work.
+Standalone AI chat interface with streaming responses, markdown rendering, multi-session sidebar, and resilient retry. SSE + buffered JSON fallback. Draft persistence. Optional deep link to settings when AI is unconfigured.
 
-### 🔜 Phase 4: Documents
+### ✅ Phase 4: Documents (v0.5.0)
 
-Document lifecycle with AI generation, editor, and print preview.
+Full document lifecycle for bids, invoices, estimates, work orders, and proposals. List + kanban views, drag-and-drop status changes with optimistic updates, line items with tax/overhead calculations, AI-assisted generation, browser print/PDF. Editor includes unsaved-changes guard.
+
+### ✅ Phase 5: Contacts (v0.6.0)
+
+**Full CRUD contact management:**
+
+- 7 contact types (customer, vendor, contractor, employee, tenant, owner, other) with color-coded badges
+- List view with search + type filter, sortable table
+- Detail view with edit mode toggle
+- Create modal (inline dialog)
+- Delete confirmation
+- Reusable `<ContactPicker>` component (searchable combobox built on cmdk + Radix)
+- Integrated into document editor: select contact to auto-fill customer fields
+- Validation: email format, required name + type
+- TanStack Query state management with optimistic invalidation
+- Tests: schema validation, normalization
+
+**Endpoints:**
+
+- `GET /api/contacts` (with query filters)
+- `POST /api/contacts`
+- `GET /api/contacts/:id`
+- `PUT /api/contacts/:id`
+- `DELETE /api/contacts/:id`
 
 ## License
 

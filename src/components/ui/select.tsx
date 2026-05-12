@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 interface SelectContextValue {
   value?: string
   onValueChange?: (value: string) => void
+  disabled?: boolean
 }
 
 const SelectContext = createContext<SelectContextValue>({})
@@ -15,14 +16,16 @@ const SelectContext = createContext<SelectContextValue>({})
 export function Select({
   value,
   onValueChange,
+  disabled,
   children,
 }: {
   value?: string
   onValueChange?: (value: string) => void
+  disabled?: boolean
   children: ReactNode
 }) {
   return (
-    <SelectContext.Provider value={{ value, onValueChange }}>
+    <SelectContext.Provider value={{ value, onValueChange, disabled }}>
       {children}
     </SelectContext.Provider>
   )
@@ -37,13 +40,14 @@ export function SelectTrigger({
   className?: string
   children: ReactNode
 }) {
-  const { value, onValueChange } = useContext(SelectContext)
+  const { value, onValueChange, disabled } = useContext(SelectContext)
 
   return (
     <select
       id={id}
       value={value}
       onChange={(e) => onValueChange?.(e.target.value)}
+      disabled={disabled}
       className={cn(
         'flex w-full appearance-none items-center justify-between rounded-md border bg-background px-3 py-2 text-sm outline-none ring-offset-background focus:ring-2 focus:ring-ring disabled:opacity-60 disabled:cursor-not-allowed',
         className

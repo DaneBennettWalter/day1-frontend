@@ -10,6 +10,8 @@ import DocumentsListRoute from '@/routes/documents/list'
 import DocumentsKanbanRoute from '@/routes/documents/kanban'
 import NewDocumentRoute from '@/routes/documents/new'
 import EditDocumentRoute from '@/routes/documents/edit'
+import { ContactsPage } from '@/routes/contacts'
+import { ContactDetailPage } from '@/routes/contactDetail'
 import SettingsIndex from '@/routes/settings/index'
 import GeneralSettings from '@/routes/settings/general'
 import AiSettings from '@/routes/settings/ai'
@@ -39,6 +41,10 @@ export default function App() {
           <Route path="/documents/kanban" element={<DocumentsKanbanRoute />} />
           <Route path="/documents/new" element={<NewDocumentRoute />} />
           <Route path="/documents/:id/edit" element={<EditDocumentRoute />} />
+
+          {/* Contacts */}
+          <Route path="/contacts" element={<ContactsPage />} />
+          <Route path="/contacts/:id" element={<ContactDetailPage />} />
 
           {/* Settings with nested tabs */}
           <Route path="/settings" element={<SettingsShell />}>
