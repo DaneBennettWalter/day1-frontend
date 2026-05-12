@@ -10,6 +10,11 @@ Professional-grade React + TypeScript + Vite scaffold built for production.
 - **Styling**: Tailwind CSS 3.4 + PostCSS
 - **Component Library**: shadcn/ui (Radix UI primitives)
 - **Routing**: React Router 6.22
+- **Server state**: TanStack Query 5
+- **Client state**: Zustand 5
+- **Forms**: React Hook Form + Zod
+- **Notifications**: sonner
+- **Testing**: Vitest 2 + React Testing Library + jsdom
 - **Package Manager**: pnpm
 - **Code Quality**: ESLint + Prettier + husky + lint-staged
 - **CI/CD**: GitHub Actions
@@ -36,6 +41,78 @@ pnpm dev
 ```
 
 The app will be available at `http://localhost:5173`
+
+## Auth Flow
+
+Day 1 uses **Bearer JWT in memory + HttpOnly refresh cookie** (default assumption from `02-architecture.md` §6.1, pending backend confirmation).
+
+### Sequence
+
+```
+Browser              React (Zustand + api client)          Backend API
+   │                          │                                │
+   │  submit /login           │                                │
+   │─────────────────────────►│                                │
+   │                          │  POST /api/auth/login          │
+   │                          │───────────────────────────────►│
+   │                          │  { user, accessToken }         │
+   │                          │  Set-Cookie: refresh=...;HttpOnly
+   │                          │◄───────────────────────────────│
+   │                          │  store.setSession(...)         │
+   │                          │  navigate → /dashboard         │
+   │                          │                                │
+   │  (page reload)           │                                │
+   │─────────────────────────►│  main.tsx → store.hydrate()    │
+   │                          │  POST /api/auth/refresh        │
+   │                          │  (cookie sent via credentials) │
+   │                          │───────────────────────────────►│
+   │                          │  { user, accessToken }         │
+   │                          │◄───────────────────────────────│
+   │                          │  status = 'authenticated'      │
+   │                          │                                │
+   │  (any authed call → 401) │                                │
+   │                          │  → store.refresh() (single-flight)
+   │                          │  → POST /api/auth/refresh      │
+   │                          │  → retry original request once │
+   │                          │  → if refresh fails: hard logout
+```
+
+### Rules
+
+- **Access token lives in memory only.** Never `localStorage`, never `sessionStorage`. Lost on tab close — that's intentional; the HttpOnly refresh cookie rehydrates on next load.
+- **Single-flight refresh.** Concurrent 401s share one in-flight refresh promise (`refreshPromise` in the auth store). Verified by `store.test.ts`.
+- **Route guards.** `<RequireAuth>` wraps `AppShell`; renders a spinner during initial hydration so we never flash unauthenticated UI to a user with a valid refresh cookie. `<RedirectIfAuthed>` keeps signed-in users out of `/login` and `/register`.
+- **Logout is best-effort.** `POST /api/auth/logout` is fired but we don't block on it. State + query cache are cleared locally, then we redirect to `/login`.
+- **`?next=` honored.** `/login?next=/dashboard` lands you on `/dashboard` after success.
+
+### Files
+
+```
+src/
+├─ lib/
+│  ├─ api/
+│  │  ├─ client.ts        # request<T>(), single-flight 401 retry
+│  │  ├─ errors.ts        # ApiError
+│  │  └─ endpoints.ts     # endpoint string constants
+│  ├─ env.ts              # Zod-validated env
+│  └─ query.ts            # TanStack Query client
+├─ features/auth/
+│  ├─ api.ts              # login, register, logout, me, refresh
+│  ├─ store.ts            # Zustand: user, accessToken, status, single-flight refresh
+│  ├─ hooks.ts            # useAuth, useLogin, useRegister, useLogout
+│  ├─ guards.tsx          # <RequireAuth>, <RedirectIfAuthed>
+│  ├─ schemas.ts          # Zod login/register form schemas
+│  └─ types.ts
+├─ features/dashboard/
+│  └─ DashboardPage.tsx   # placeholder (widgets in P7)
+├─ components/
+│  ├─ layout/             # AppShell, MarketingShell, Sidebar, TopBar
+│  └─ feedback/           # FullPageSpinner, Toaster, ErrorBoundary
+└─ routes/
+   ├─ login.tsx
+   ├─ register.tsx
+   └─ comingSoon.tsx
+```
 
 ## Development Commands
 
