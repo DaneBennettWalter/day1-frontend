@@ -16,11 +16,16 @@ interface NavItem {
 }
 
 const NAV_ITEMS: readonly NavItem[] = [
-  { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard, enabled: true },
+  {
+    label: 'Dashboard',
+    to: '/dashboard',
+    icon: LayoutDashboard,
+    enabled: true,
+  },
   { label: 'Documents', to: '/documents', icon: FileText, enabled: false },
   { label: 'Contacts', to: '/contacts', icon: Users, enabled: false },
   { label: 'Properties', to: '/properties', icon: Building2, enabled: false },
-  { label: 'Settings', to: '/settings', icon: Settings, enabled: false },
+  { label: 'Settings', to: '/settings', icon: Settings, enabled: true },
 ]
 
 export function Sidebar() {
@@ -57,7 +62,7 @@ export function Sidebar() {
                   'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
                   isActive
                     ? 'bg-secondary text-secondary-foreground'
-                    : 'text-foreground hover:bg-secondary/60',
+                    : 'text-foreground hover:bg-secondary/60'
                 )
               }
             >

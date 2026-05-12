@@ -170,48 +170,56 @@ day1-frontend/
 ## Architecture Decisions
 
 ### 1. **Vite over Create React App**
-   - Faster development server with HMR
-   - Superior build performance
-   - Modern ES modules first approach
-   - Better TypeScript integration
+
+- Faster development server with HMR
+- Superior build performance
+- Modern ES modules first approach
+- Better TypeScript integration
 
 ### 2. **TypeScript Strict Mode**
-   - Enabled all strict compiler options
-   - `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`
-   - `noUncheckedIndexedAccess` for safer array access
-   - `noImplicitReturns` for explicit function returns
+
+- Enabled all strict compiler options
+- `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`
+- `noUncheckedIndexedAccess` for safer array access
+- `noImplicitReturns` for explicit function returns
 
 ### 3. **pnpm as Package Manager**
-   - Faster than npm/yarn
-   - Efficient disk space usage with content-addressable store
-   - Strict dependency resolution prevents phantom dependencies
+
+- Faster than npm/yarn
+- Efficient disk space usage with content-addressable store
+- Strict dependency resolution prevents phantom dependencies
 
 ### 4. **shadcn/ui Component System**
-   - Copy-paste components (not npm package)
-   - Full control over component code
-   - Built on Radix UI primitives (accessibility first)
-   - Tailwind CSS styling with CSS variables for theming
+
+- Copy-paste components (not npm package)
+- Full control over component code
+- Built on Radix UI primitives (accessibility first)
+- Tailwind CSS styling with CSS variables for theming
 
 ### 5. **Path Aliases**
-   - `@/` maps to `./src/`
-   - Cleaner imports: `import { Button } from '@/components/ui/button'`
-   - Configured in both `vite.config.ts` and `tsconfig.json`
+
+- `@/` maps to `./src/`
+- Cleaner imports: `import { Button } from '@/components/ui/button'`
+- Configured in both `vite.config.ts` and `tsconfig.json`
 
 ### 6. **Git Hooks**
-   - husky for pre-commit hooks
-   - lint-staged for running linters on staged files only
-   - Ensures code quality before commits
+
+- husky for pre-commit hooks
+- lint-staged for running linters on staged files only
+- Ensures code quality before commits
 
 ### 7. **Feature-Based Structure**
-   - `features/` directory for domain-specific modules
-   - Each feature contains its own components, hooks, and logic
-   - Promotes modularity and scalability
+
+- `features/` directory for domain-specific modules
+- Each feature contains its own components, hooks, and logic
+- Promotes modularity and scalability
 
 ## Code Quality
 
 ### Linting
 
 ESLint is configured with:
+
 - `eslint:recommended`
 - `@typescript-eslint/recommended` + `recommended-requiring-type-checking`
 - `plugin:react/recommended` + `plugin:react-hooks/recommended`
@@ -220,6 +228,7 @@ ESLint is configured with:
 ### Formatting
 
 Prettier is configured with:
+
 - No semicolons
 - Single quotes
 - 2 space indentation
@@ -229,6 +238,7 @@ Prettier is configured with:
 ### Pre-commit Hooks
 
 Git hooks automatically run on commit:
+
 1. Type check (`tsc --noEmit`)
 2. Lint staged files (`eslint --fix`)
 3. Format staged files (`prettier --write`)
@@ -319,6 +329,50 @@ Access in code via `import.meta.env.VITE_API_URL`.
 - Chrome/Edge 88+
 - Firefox 78+
 - Safari 14+
+
+## Feature Status
+
+### ✅ Phase 1: Auth + Dashboard Shell (v0.2.0)
+
+- Complete authentication flow (login, register, logout, refresh)
+- Protected routes with guards
+- Empty dashboard shell
+- Sidebar navigation with placeholder links
+
+### ✅ Phase 2: Settings + API Key Management (v0.3.0)
+
+**Settings feature with 4 tabs:**
+
+1. **General** - Organization name, description, address, phone, email, EIN
+2. **AI** - API key input, health check status badge, secure key storage
+3. **Branding** - Theme toggle (light/dark/system), primary/accent color pickers, logo URL
+4. **Team** - Read-only placeholder (coming soon)
+
+**Features:**
+
+- Tab-based settings navigation
+- Form validation with Zod schemas
+- Optimistic updates for fast UX
+- Theme changes apply immediately
+- Color changes apply immediately for preview
+- AI health check shows "AI Active ✓" when API key is configured
+- API keys never stored client-side (encrypted server-side only)
+- Comprehensive validation tests
+
+**Endpoints used:**
+
+- `GET /api/org/default/settings` - Fetch settings
+- `PUT /api/org/default/settings` - Update settings
+- `GET /api/health` - Check AI availability
+- `POST /api/settings/api-keys` - Save API key
+
+### 🔜 Phase 3: AI Chat (Standalone)
+
+Standalone AI chat interface proving the backend proxy integration before document editor work.
+
+### 🔜 Phase 4: Documents
+
+Document lifecycle with AI generation, editor, and print preview.
 
 ## License
 

@@ -10,4 +10,10 @@ export const endpoints = {
     me: '/api/auth/me',
     refresh: '/api/auth/refresh',
   },
+  settings: {
+    get: '/api/org/default/settings',
+    update: '/api/org/default/settings',
+    health: '/api/health',
+    apiKey: '/api/settings/api-keys',
+  },
 } as const
