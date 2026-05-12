@@ -5,6 +5,7 @@ import {
   Users,
   Building2,
   Settings,
+  Sparkles,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -22,6 +23,7 @@ const NAV_ITEMS: readonly NavItem[] = [
     icon: LayoutDashboard,
     enabled: true,
   },
+  { label: 'AI Chat', to: '/chat', icon: Sparkles, enabled: true },
   { label: 'Documents', to: '/documents', icon: FileText, enabled: false },
   { label: 'Contacts', to: '/contacts', icon: Users, enabled: false },
   { label: 'Properties', to: '/properties', icon: Building2, enabled: false },

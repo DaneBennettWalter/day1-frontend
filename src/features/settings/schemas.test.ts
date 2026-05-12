@@ -26,7 +26,7 @@ describe('generalSettingsSchema', () => {
     const result = generalSettingsSchema.safeParse({ name: '' })
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].message).toContain('required')
+      expect(result.error.issues[0]?.message).toContain('required')
     }
   })
 
@@ -37,7 +37,7 @@ describe('generalSettingsSchema', () => {
     })
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].message).toContain('Invalid email')
+      expect(result.error.issues[0]?.message).toContain('Invalid email')
     }
   })
 
@@ -65,7 +65,7 @@ describe('brandingSettingsSchema', () => {
     })
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].message).toContain('hex color')
+      expect(result.error.issues[0]?.message).toContain('hex color')
     }
   })
 
@@ -99,7 +99,7 @@ describe('defaultsSettingsSchema', () => {
     const result = defaultsSettingsSchema.safeParse({ taxRate: -1 })
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].message).toContain('0 or greater')
+      expect(result.error.issues[0]?.message).toContain('0 or greater')
     }
   })
 
@@ -107,7 +107,7 @@ describe('defaultsSettingsSchema', () => {
     const result = defaultsSettingsSchema.safeParse({ taxRate: 101 })
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].message).toContain('cannot exceed 100')
+      expect(result.error.issues[0]?.message).toContain('cannot exceed 100')
     }
   })
 
@@ -120,7 +120,7 @@ describe('defaultsSettingsSchema', () => {
     const result = defaultsSettingsSchema.safeParse({ paymentTerms: 30.5 })
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].message).toContain('whole number')
+      expect(result.error.issues[0]?.message).toContain('whole number')
     }
   })
 })
@@ -139,7 +139,7 @@ describe('aiSettingsSchema', () => {
     })
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].message).toContain('sk-ant-')
+      expect(result.error.issues[0]?.message).toContain('sk-ant-')
     }
   })
 
@@ -147,7 +147,7 @@ describe('aiSettingsSchema', () => {
     const result = aiSettingsSchema.safeParse({ apiKey: 'sk-ant-123' })
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.issues[0].message).toContain('invalid')
+      expect(result.error.issues[0]?.message).toContain('invalid')
     }
   })
 })

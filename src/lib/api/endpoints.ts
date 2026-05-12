@@ -16,4 +16,9 @@ export const endpoints = {
     health: '/api/health',
     apiKey: '/api/settings/api-keys',
   },
+  ai: {
+    chat: '/api/ai/chat',
+    generate: '/api/ai/generate',
+    search: '/api/ai/search',
+  },
 } as const

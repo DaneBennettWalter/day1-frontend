@@ -2,6 +2,12 @@
 
 Professional-grade React + TypeScript + Vite scaffold built for production.
 
+## Features
+
+- **Auth** (P1) — login / register / refresh-based session, `RequireAuth` guard.
+- **Settings** (P2) — General, AI (API key), Branding, Team. Server-side health probe.
+- **AI Chat** (P3) — Standalone `/chat` route with streaming responses, markdown rendering, multi-session sidebar, and resilient retry. See [AI Chat](#ai-chat-phase-3) below.
+
 ## Tech Stack
 
 - **Framework**: React 18.3
@@ -166,6 +172,75 @@ day1-frontend/
 ├── package.json             # Project dependencies and scripts
 └── README.md                # This file
 ```
+
+## AI Chat (Phase 3)
+
+Standalone chat surface at `/chat` (and `/chat/:conversationId`). Built first as
+a pure feature module so it can be embedded into the document editor in P4 with
+confidence the streaming/state layer works.
+
+### Endpoints consumed
+
+- `POST /api/ai/chat` — primary chat. Streaming (`text/event-stream`) **or**
+  buffered (`application/json`). The client probes `Content-Type` and dispatches.
+- `POST /api/ai/generate` — document generation (exposed via `useGenerateDocument`, used in P4).
+- `GET  /api/health` — used to detect when AI is unconfigured and show the
+  "AI unavailable" empty state with a deep link to `/settings/ai`.
+
+### Architecture
+
+```
+src/features/ai-chat/
+├── api.ts          # streamChat() SSE parser + buffered fallback; generate()
+├── hooks.ts        # useAiChat() (send/retry/stop/clear), useAiAvailability()
+├── store.ts        # Zustand: sessions, messages, in-flight controller
+├── types.ts        # ChatMessage, ChatSession, ChatRole, statuses
+└── components/
+    ├── MessageList.tsx        # auto-virtualizes past 50 msgs (react-virtual)
+    ├── MessageBubble.tsx      # markdown (rehype-sanitize), code highlighting
+    ├── Composer.tsx           # autosize, Enter/Shift+Enter, draft persistence
+    ├── SuggestedPrompts.tsx   # empty-state suggestions
+    └── ConversationSidebar.tsx
+src/routes/chat.tsx            # composed surface
+```
+
+### Streaming
+
+`streamChat()` accepts an SSE response (`data: ...\n\n` frames) and yields
+incremental tokens to an `onToken` callback. JSON envelopes (`{"delta":...}`,
+`{"content":...}`, `{"text":...}`) and raw-string deltas are both supported.
+`[DONE]` terminates. If the server returns a plain `application/json` response
+instead, the client emits the full content as a single token — UI code is
+identical either way.
+
+### State model
+
+Messages live in a Zustand store, not in TanStack Query. Rationale: tokens
+arrive dozens of times per second during a stream. Query's cache model would
+fight that — every token would be a cache write + invalidation. We use Query
+only for the read-mostly health probe.
+
+Sessions are persisted to `sessionStorage` (per-tab). When the backend grows a
+`/api/conversations` endpoint, swap the persistence layer in `store.ts` — the
+components and hooks stay the same.
+
+### Keyboard shortcuts
+
+| Key              | Action              |
+| ---------------- | ------------------- |
+| `Enter`          | Send                |
+| `Shift+Enter`    | Newline             |
+| `Cmd/Ctrl+Enter` | Send                |
+| `Escape`         | Clear current draft |
+
+Drafts persist to `sessionStorage` per conversation id, so navigating away and
+back within a session never loses what the user was writing.
+
+### Tests
+
+- `store.test.ts` — session lifecycle, title derivation, delta concatenation, clear/delete.
+- `api.test.ts` — SSE raw + JSON envelopes, buffered JSON fallback, abort mid-stream.
+- `components/Composer.test.tsx` — Enter/Shift+Enter/Escape, disabled states, draft persistence.
 
 ## Architecture Decisions
 

@@ -5,6 +5,7 @@ import { SettingsShell } from '@/components/layout/SettingsShell'
 import LoginRoute from '@/routes/login'
 import RegisterRoute from '@/routes/register'
 import DashboardPage from '@/features/dashboard/DashboardPage'
+import ChatRoute from '@/routes/chat'
 import SettingsIndex from '@/routes/settings/index'
 import GeneralSettings from '@/routes/settings/general'
 import AiSettings from '@/routes/settings/ai'
@@ -24,6 +25,10 @@ export default function App() {
         {/* Protected */}
         <Route element={<AppShell />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+
+          {/* AI Chat */}
+          <Route path="/chat" element={<ChatRoute />} />
+          <Route path="/chat/:conversationId" element={<ChatRoute />} />
 
           {/* Settings with nested tabs */}
           <Route path="/settings" element={<SettingsShell />}>
