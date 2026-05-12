@@ -12,6 +12,9 @@ import NewDocumentRoute from '@/routes/documents/new'
 import EditDocumentRoute from '@/routes/documents/edit'
 import { ContactsPage } from '@/routes/contacts'
 import { ContactDetailPage } from '@/routes/contactDetail'
+import { PropertiesPage } from '@/routes/properties'
+import { PropertyDetailPage } from '@/routes/propertyDetail'
+import { RentRollPage } from '@/routes/rentRoll'
 import SettingsIndex from '@/routes/settings/index'
 import GeneralSettings from '@/routes/settings/general'
 import AiSettings from '@/routes/settings/ai'
@@ -45,6 +48,11 @@ export default function App() {
           {/* Contacts */}
           <Route path="/contacts" element={<ContactsPage />} />
           <Route path="/contacts/:id" element={<ContactDetailPage />} />
+
+          {/* Properties */}
+          <Route path="/properties" element={<PropertiesPage />} />
+          <Route path="/properties/rent-roll" element={<RentRollPage />} />
+          <Route path="/properties/:id" element={<PropertyDetailPage />} />
 
           {/* Settings with nested tabs */}
           <Route path="/settings" element={<SettingsShell />}>

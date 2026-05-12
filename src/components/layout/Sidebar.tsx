@@ -26,7 +26,7 @@ const NAV_ITEMS: readonly NavItem[] = [
   { label: 'AI Chat', to: '/chat', icon: Sparkles, enabled: true },
   { label: 'Documents', to: '/documents', icon: FileText, enabled: true },
   { label: 'Contacts', to: '/contacts', icon: Users, enabled: true },
-  { label: 'Properties', to: '/properties', icon: Building2, enabled: false },
+  { label: 'Properties', to: '/properties', icon: Building2, enabled: true },
   { label: 'Settings', to: '/settings', icon: Settings, enabled: true },
 ]
 

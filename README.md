@@ -9,6 +9,7 @@ Professional-grade React + TypeScript + Vite scaffold built for production.
 - **AI Chat** (P3) — Standalone `/chat` route with streaming responses, markdown rendering, multi-session sidebar, and resilient retry. See [AI Chat](#ai-chat-phase-3) below.
 - **Documents** (P4) — List + kanban + editor for bids, invoices, estimates, work orders, and proposals. Material/labor line items with tax + overhead calculations, drag-and-drop status pipeline, AI-assisted generation, browser print/PDF. See [Documents](#documents-phase-4) below.
 - **Contacts** (P5) — Full CRUD contact management with 7 types (customer, vendor, contractor, employee, tenant, owner, other), reusable ContactPicker component integrated into document editor. See [Contacts](#contacts-phase-5) below.
+- **Properties** (P6) — Multi-unit property management with rent roll, occupancy tracking, and lease management. PropertyPicker integrated into document editor for property-based documents. See [Properties](#properties-phase-6) below.
 
 ## Tech Stack
 
@@ -634,6 +635,40 @@ Full document lifecycle for bids, invoices, estimates, work orders, and proposal
 - `GET /api/contacts/:id`
 - `PUT /api/contacts/:id`
 - `DELETE /api/contacts/:id`
+
+---
+
+### ✅ Phase 6: Properties (v0.7.0)
+
+**Multi-unit property management with rent roll:**
+
+- Property CRUD with 3 types (residential, commercial, mixed-use)
+- Multi-unit support: add/edit/delete units per property
+- Unit status tracking (vacant, occupied, maintenance) with color-coded badges
+- Property detail view with units table and portfolio stats
+- Rent roll view: all units across all properties, sortable by any column
+- Occupancy tracking and monthly income calculations
+- Reusable `<PropertyPicker>` component integrated into document editor
+- Owner and tenant fields link to contacts (ContactPicker integration)
+- Property list with search, type filter, and summary stats
+- Lease date tracking (start/end dates per unit)
+- Delete confirmations with warnings for properties with units
+- Validation: required address fields, numeric inputs for prices/rent
+- TanStack Query state management with query invalidation
+
+**Endpoints:**
+
+- `GET /api/properties` (with query filters + computed stats)
+- `POST /api/properties`
+- `GET /api/properties/:id`
+- `PUT /api/properties/:id`
+- `DELETE /api/properties/:id`
+- `GET /api/properties/:propertyId/units`
+- `POST /api/properties/:propertyId/units`
+- `PUT /api/units/:id`
+- `DELETE /api/units/:id`
+- `GET /api/properties/rent-roll` (all units with property context)
+- `GET /api/properties/stats` (portfolio-wide summary)
 
 ## License
 

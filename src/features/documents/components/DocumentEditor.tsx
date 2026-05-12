@@ -29,6 +29,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { ContactPicker } from '@/features/contacts/components/ContactPicker'
 import { useContact } from '@/features/contacts/hooks'
+import { PropertyPicker } from '@/features/properties/components/PropertyPicker'
+import { useProperty } from '@/features/properties/hooks'
 import {
   documentInputSchema,
   type DocumentInputForm,
@@ -276,6 +278,20 @@ export function DocumentEditor({
               >
                 <Input {...register('customer.address')} className="h-9" />
               </Field>
+              <div className="md:col-span-2">
+                <PropertyContactPicker
+                  setValue={(propertyId, address) => {
+                    reset(
+                      {
+                        ...getValues(),
+                        propertyId,
+                        propertyAddress: address,
+                      },
+                      { keepDirty: true }
+                    )
+                  }}
+                />
+              </div>
               <Field
                 label="Property address"
                 error={formState.errors.propertyAddress?.message}
@@ -489,6 +505,39 @@ function CustomerContactPicker({
         value={selectedId}
         onChange={setSelectedId}
         placeholder="Select a contact to auto-fill customer fields..."
+      />
+    </Field>
+  )
+}
+
+/**
+ * Property picker to auto-fill property fields.
+ */
+interface PropertyContactPickerProps {
+  setValue: (
+    propertyId: string | undefined,
+    address: string | undefined
+  ) => void
+}
+
+function PropertyContactPicker({ setValue }: PropertyContactPickerProps) {
+  const [selectedId, setSelectedId] = useState<string | undefined>()
+  const { data: property } = useProperty(selectedId)
+
+  useEffect(() => {
+    if (property) {
+      const { address } = property
+      const addressStr = `${address.street}, ${address.city}, ${address.state} ${address.zip}`
+      setValue(property.id, addressStr)
+    }
+  }, [property, setValue])
+
+  return (
+    <Field label="Quick-fill from property">
+      <PropertyPicker
+        value={selectedId}
+        onChange={setSelectedId}
+        placeholder="Select a property to auto-fill address..."
       />
     </Field>
   )
