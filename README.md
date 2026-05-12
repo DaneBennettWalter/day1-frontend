@@ -10,6 +10,7 @@ Professional-grade React + TypeScript + Vite scaffold built for production.
 - **Documents** (P4) — List + kanban + editor for bids, invoices, estimates, work orders, and proposals. Material/labor line items with tax + overhead calculations, drag-and-drop status pipeline, AI-assisted generation, browser print/PDF. See [Documents](#documents-phase-4) below.
 - **Contacts** (P5) — Full CRUD contact management with 7 types (customer, vendor, contractor, employee, tenant, owner, other), reusable ContactPicker component integrated into document editor. See [Contacts](#contacts-phase-5) below.
 - **Properties** (P6) — Multi-unit property management with rent roll, occupancy tracking, and lease management. PropertyPicker integrated into document editor for property-based documents. See [Properties](#properties-phase-6) below.
+- **Dashboard** (P7) — Portfolio overview with 5 essential widgets: stats, recent documents, upcoming tasks, financial summary, and quick actions. Real-time data from properties, documents, and financials. See [Dashboard](#dashboard-phase-7) below.
 
 ## Tech Stack
 
@@ -669,6 +670,63 @@ Full document lifecycle for bids, invoices, estimates, work orders, and proposal
 - `DELETE /api/units/:id`
 - `GET /api/properties/rent-roll` (all units with property context)
 - `GET /api/properties/stats` (portfolio-wide summary)
+
+---
+
+### ✅ Phase 7: Dashboard (v0.8.0)
+
+**Portfolio overview dashboard with 5 essential widgets:**
+
+- **Portfolio Stats**: Total properties, units, occupancy rate, and monthly income
+- **Recent Documents**: 10 most recently updated documents with type/status badges, links to detail pages
+- **Upcoming Tasks**: Work orders due in the next 7 days with assignee and property context
+- **Financial Summary**: Monthly revenue, expenses, and profit with color-coded indicators
+- **Quick Actions**: Large action buttons for common tasks (create document, add property, add contact)
+
+**Design:**
+
+- Responsive 2-column grid (1 column on mobile)
+- Each widget is self-contained: handles own loading/error states independently
+- Skeleton loaders during data fetching (no blocking spinner)
+- Empty states with helpful prompts and action links
+- Error states with retry buttons
+- 5-minute stale time (dashboard doesn't need real-time)
+- Background refetch on window focus
+
+**Calculations:**
+
+- Occupancy = (occupied units / total units) × 100
+- Monthly income = sum of rent from occupied units
+- Financial summary aggregates from payments/expenses (placeholder if backend unavailable)
+
+**Endpoints:**
+
+- `GET /api/dashboard/stats` (portfolio metrics)
+- `GET /api/dashboard/financials` (monthly summary)
+- `GET /api/documents?limit=10&sort=updatedAt:desc` (recent docs)
+- `GET /api/documents?type=work_order&status=draft` (upcoming tasks)
+
+**Components:**
+
+```
+src/features/dashboard/
+├── DashboardPage.tsx    # Main page with 2-column widget grid
+├── api.ts               # Dashboard API client
+├── hooks.ts             # TanStack Query hooks with 5min stale time
+├── types.ts             # Dashboard domain types
+└── widgets/
+    ├── PortfolioStats.tsx
+    ├── RecentDocuments.tsx
+    ├── UpcomingTasks.tsx
+    ├── FinancialSummary.tsx
+    └── QuickActions.tsx
+```
+
+**Tests:**
+
+- API client unit tests (data fetching, query params, task mapping)
+- Hook existence and structure tests
+- Calculation accuracy verified via portfolio stats
 
 ## License
 

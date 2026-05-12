@@ -28,4 +28,8 @@ export const endpoints = {
     update: (id: string) => `/api/documents/${id}`,
     delete: (id: string) => `/api/documents/${id}`,
   },
+  dashboard: {
+    stats: '/api/dashboard/stats',
+    financials: '/api/dashboard/financials',
+  },
 } as const
