@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
 const schema = z.object({
-  VITE_API_BASE_URL: z.string().url(),
+  VITE_API_BASE_URL: z.string().default('/api'),
   VITE_ENV: z
     .enum(['development', 'staging', 'production'])
-    .default('development'),
+    .default('production'),
   /**
    * Stripe publishable key. Safe to expose to the browser by design
    * (Stripe explicitly publishes these). Empty disables payments UI.
