@@ -6,6 +6,10 @@ import LoginRoute from '@/routes/login'
 import RegisterRoute from '@/routes/register'
 import DashboardPage from '@/features/dashboard/DashboardPage'
 import ChatRoute from '@/routes/chat'
+import DocumentsListRoute from '@/routes/documents/list'
+import DocumentsKanbanRoute from '@/routes/documents/kanban'
+import NewDocumentRoute from '@/routes/documents/new'
+import EditDocumentRoute from '@/routes/documents/edit'
 import SettingsIndex from '@/routes/settings/index'
 import GeneralSettings from '@/routes/settings/general'
 import AiSettings from '@/routes/settings/ai'
@@ -29,6 +33,12 @@ export default function App() {
           {/* AI Chat */}
           <Route path="/chat" element={<ChatRoute />} />
           <Route path="/chat/:conversationId" element={<ChatRoute />} />
+
+          {/* Documents */}
+          <Route path="/documents" element={<DocumentsListRoute />} />
+          <Route path="/documents/kanban" element={<DocumentsKanbanRoute />} />
+          <Route path="/documents/new" element={<NewDocumentRoute />} />
+          <Route path="/documents/:id/edit" element={<EditDocumentRoute />} />
 
           {/* Settings with nested tabs */}
           <Route path="/settings" element={<SettingsShell />}>

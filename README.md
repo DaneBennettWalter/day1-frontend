@@ -7,6 +7,7 @@ Professional-grade React + TypeScript + Vite scaffold built for production.
 - **Auth** (P1) — login / register / refresh-based session, `RequireAuth` guard.
 - **Settings** (P2) — General, AI (API key), Branding, Team. Server-side health probe.
 - **AI Chat** (P3) — Standalone `/chat` route with streaming responses, markdown rendering, multi-session sidebar, and resilient retry. See [AI Chat](#ai-chat-phase-3) below.
+- **Documents** (P4) — List + kanban + editor for bids, invoices, estimates, work orders, and proposals. Material/labor line items with tax + overhead calculations, drag-and-drop status pipeline, AI-assisted generation, browser print/PDF. See [Documents](#documents-phase-4) below.
 
 ## Tech Stack
 
@@ -19,6 +20,8 @@ Professional-grade React + TypeScript + Vite scaffold built for production.
 - **Server state**: TanStack Query 5
 - **Client state**: Zustand 5
 - **Forms**: React Hook Form + Zod
+- **Tables**: TanStack Table 8 + TanStack Virtual 3
+- **Drag and drop**: dnd-kit 6
 - **Notifications**: sonner
 - **Testing**: Vitest 2 + React Testing Library + jsdom
 - **Package Manager**: pnpm
@@ -241,6 +244,69 @@ back within a session never loses what the user was writing.
 - `store.test.ts` — session lifecycle, title derivation, delta concatenation, clear/delete.
 - `api.test.ts` — SSE raw + JSON envelopes, buffered JSON fallback, abort mid-stream.
 - `components/Composer.test.tsx` — Enter/Shift+Enter/Escape, disabled states, draft persistence.
+
+## Documents (Phase 4)
+
+Document management for the 5 shipped types — **bid, invoice, estimate, work_order, proposal** — with material/labor line items, tax + overhead, and an AI-assisted generation path. The remaining five legacy types (lease, contract, receipt, purchase_order, change_order) are in the schema and will light up in a later phase.
+
+### Routes
+
+- `/documents` — sortable, filterable list (search, type, status, date range). Virtualizes past 100 rows.
+- `/documents/kanban` — drag-and-drop pipeline across `draft → sent → approved → rejected`. Optimistic cache updates; rolls back on failure.
+- `/documents/new` — multi-step form editor. Optional `?type=invoice` to preselect.
+- `/documents/:id/edit` — same editor, loaded with server state, with a Print button.
+
+### Endpoints consumed
+
+- `GET /api/documents` — list with query filters (`type`, `status`, `from`, `to`, `q`).
+- `POST /api/documents` — create.
+- `GET /api/documents/:id` — fetch.
+- `PUT /api/documents/:id` — update.
+- `DELETE /api/documents/:id` — delete.
+- `POST /api/ai/generate` — AI document generation; payload is shape-loose, parsed via `aiParse.ts`.
+
+### Calculation engine (`src/features/documents/calculations.ts`)
+
+Pure functions; no React.
+
+```
+lineTotal      = qty × unit_price                    (per row)
+subtotal       = Σ lineTotal
+taxableSubtotal = Σ lineTotal where taxable=true
+tax            = taxableSubtotal × taxRate
+overhead       = subtotal × overheadRate
+total          = subtotal + tax + overhead
+```
+
+All aggregates round to cents (`Math.round(v * 100) / 100`). The server is authoritative — client computes for live UI only.
+
+### Line items
+
+Reusable `<LineItems>` component built on `useFieldArray`. Add/remove rows inline, material/labor selector with colored pill, per-row taxable checkbox, auto-computed line total, debounced totals panel (`<TotalsPanel>`) reads via `useWatch`.
+
+### AI generation
+
+1. “Generate with AI” button on `/documents/new` opens `<AiGenerateModal>`.
+2. User picks a type + describes the work; we call `POST /api/ai/generate`.
+3. The loose response is parsed by `parseAiDocument()` — robust to snake_case, percent-vs-decimal rates, currency-formatted numbers, missing fields, nested `{document: {...}}` envelopes.
+4. The parsed `Partial<DocumentInput>` is merged over the form's current values via `reset(…, { keepDirty: true })`. User edits before saving.
+
+### Print / PDF
+
+No PDF library. `index.css` defines a `@media print` stylesheet that hides everything except `.print-area`. The edit route renders a hidden `<PrintView>`; clicking **Print / PDF** calls `window.print()` and the browser does the rest (“Save as PDF” is one click away in the print dialog).
+
+### State + caching
+
+- TanStack Query owns server state with query keys namespaced under `['documents', …]`.
+- Status changes on the kanban use an **optimistic mutation**: the card moves immediately; on failure the cache snapshot rolls back and toasts the error.
+- Editor form state is local (react-hook-form). A `beforeunload` guard warns on browser close with unsaved changes.
+
+### Tests
+
+- `calculations.test.ts` — rounding edge cases, taxable subset, overhead application, negative coercion, materials/labor split, currency + percent formatting.
+- `schemas.test.ts` — Zod coercion, required fields, decimal-rate guard, email validation.
+- `aiParse.test.ts` — snake_case, percent-rate coercion, customer extraction, invalid line items dropped, currency stripping, boolean parsing, type fallback.
+- `hooks.test.ts` — blank-document defaults, query key namespacing.
 
 ## Architecture Decisions
 

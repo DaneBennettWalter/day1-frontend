@@ -21,4 +21,11 @@ export const endpoints = {
     generate: '/api/ai/generate',
     search: '/api/ai/search',
   },
+  documents: {
+    list: '/api/documents',
+    create: '/api/documents',
+    get: (id: string) => `/api/documents/${id}`,
+    update: (id: string) => `/api/documents/${id}`,
+    delete: (id: string) => `/api/documents/${id}`,
+  },
 } as const

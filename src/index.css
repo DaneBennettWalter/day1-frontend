@@ -57,3 +57,51 @@
     @apply bg-background text-foreground;
   }
 }
+
+/*
+ * Print stylesheet.
+ *
+ * Strategy: hide everything except elements with `.print-area`. The document
+ * editor renders a `<PrintView>` inside a div with `.print-area print-only`
+ * — hidden in screen, visible in print. Tailwind's `print:` modifier handles
+ * per-element hiding (e.g. action bars, sidebar) within the editor itself.
+ */
+@media print {
+  /* Hide everything… */
+  body * {
+    visibility: hidden;
+  }
+  /* …except the print area and its children. */
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0.5in;
+    background: white;
+    color: black;
+    box-shadow: none;
+  }
+  /* Color-adjust so badges/print remain readable. */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+}
+
+/* Hide the print template offscreen during normal use. */
+.print-only {
+  position: absolute;
+  left: -10000px;
+  top: -10000px;
+  width: 8.5in;
+  pointer-events: none;
+}
+
