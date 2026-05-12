@@ -53,8 +53,18 @@ describe('parseAiDocument', () => {
   it('infers labor/material from kind/type fields', () => {
     const r = parseAiDocument({
       items: [
-        { description: 'Carpenter hours', type: 'labor', quantity: 10, rate: 65 },
-        { description: 'Lumber', category: 'Materials', quantity: 1, price: 800 },
+        {
+          description: 'Carpenter hours',
+          type: 'labor',
+          quantity: 10,
+          rate: 65,
+        },
+        {
+          description: 'Lumber',
+          category: 'Materials',
+          quantity: 1,
+          price: 800,
+        },
       ],
     })
     expect(r.lineItems?.[0]?.kind).toBe('labor')

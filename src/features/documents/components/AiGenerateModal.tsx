@@ -44,7 +44,8 @@ export function AiGenerateModal({
   onApply,
 }: AiGenerateModalProps) {
   const fallback: ShippedDocumentType =
-    initialType && (SHIPPED_TYPES as readonly DocumentType[]).includes(initialType)
+    initialType &&
+    (SHIPPED_TYPES as readonly DocumentType[]).includes(initialType)
       ? (initialType as ShippedDocumentType)
       : 'bid'
   const [type, setType] = useState<ShippedDocumentType>(fallback)

@@ -4,10 +4,7 @@
  */
 
 import { cn } from '@/lib/utils'
-import {
-  DOCUMENT_STATUS_LABELS,
-  type DocumentStatus,
-} from '../types'
+import { DOCUMENT_STATUS_LABELS, type DocumentStatus } from '../types'
 
 const STATUS_CLASS: Record<DocumentStatus, string> = {
   draft: 'bg-muted text-muted-foreground',

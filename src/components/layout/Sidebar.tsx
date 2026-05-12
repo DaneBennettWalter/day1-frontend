@@ -6,6 +6,7 @@ import {
   Building2,
   Settings,
   Sparkles,
+  CreditCard,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -27,12 +28,16 @@ const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Documents', to: '/documents', icon: FileText, enabled: true },
   { label: 'Contacts', to: '/contacts', icon: Users, enabled: true },
   { label: 'Properties', to: '/properties', icon: Building2, enabled: true },
+  { label: 'Payments', to: '/payments', icon: CreditCard, enabled: true },
   { label: 'Settings', to: '/settings', icon: Settings, enabled: true },
 ]
 
 export function Sidebar() {
   return (
-    <aside className="hidden w-60 shrink-0 border-r bg-card md:flex md:flex-col">
+    <aside
+      aria-label="Primary navigation"
+      className="hidden w-60 shrink-0 border-r bg-card md:flex md:flex-col"
+    >
       <div className="flex h-16 items-center px-6 text-lg font-semibold">
         day1
       </div>

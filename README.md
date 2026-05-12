@@ -11,6 +11,8 @@ Professional-grade React + TypeScript + Vite scaffold built for production.
 - **Contacts** (P5) — Full CRUD contact management with 7 types (customer, vendor, contractor, employee, tenant, owner, other), reusable ContactPicker component integrated into document editor. See [Contacts](#contacts-phase-5) below.
 - **Properties** (P6) — Multi-unit property management with rent roll, occupancy tracking, and lease management. PropertyPicker integrated into document editor for property-based documents. See [Properties](#properties-phase-6) below.
 - **Dashboard** (P7) — Portfolio overview with 5 essential widgets: stats, recent documents, upcoming tasks, financial summary, and quick actions. Real-time data from properties, documents, and financials. See [Dashboard](#dashboard-phase-7) below.
+- **Payments** (P8) — Stripe-powered card payments with intent + confirmation flow, 3D Secure (SCA) handling, payment history with status badges, and receipt links. See [Payments](#payments-phase-8) below.
+- **Production polish** (P8) — Route-level code splitting, vendor chunking, top-level error boundary, accessible skip link, custom 404, and a v1.0.0 release. See [Deployment](#deployment) below.
 
 ## Tech Stack
 
@@ -727,6 +729,227 @@ src/features/dashboard/
 - API client unit tests (data fetching, query params, task mapping)
 - Hook existence and structure tests
 - Calculation accuracy verified via portfolio stats
+
+## Payments (Phase 8)
+
+Stripe-powered card payment flow with full SCA / 3D Secure support.
+
+**Endpoints:**
+
+- `POST /api/payments/create-intent` — server-side intent creation (returns `clientSecret`)
+- `POST /api/payments/confirm` — finalize the row after Stripe confirms
+- `GET  /api/payments` — list (with `status`, `documentId`, `from`, `to` filters)
+- `GET  /api/payments/:id` — detail
+
+**Components:**
+
+```
+src/features/payments/
+├── api.ts                    # Typed client (intent/confirm/list/get)
+├── hooks.ts                  # TanStack Query: usePaymentsList, useCreatePaymentIntent, useConfirmPayment
+├── stripe.ts                 # Stripe.js loader (CDN, lazy, memoized)
+├── format.ts                 # cents ↔ display helpers (+ tests)
+├── types.ts                  # Domain types (Payment, PaymentStatus, …)
+└── components/
+    ├── PaymentForm.tsx       # Stripe Elements card capture + confirm flow
+    ├── PaymentsList.tsx      # History table with status pills
+    ├── PaymentStatusBadge.tsx
+    └── PaymentDetail.tsx     # /payments/:id view
+```
+
+**Flow:**
+
+1. User enters amount + description, fills Stripe Elements card field.
+2. Frontend calls `/api/payments/create-intent` → returns `{ paymentId, clientSecret }`.
+3. Frontend calls `stripe.confirmCardPayment(clientSecret, …)`. Stripe handles 3D Secure inline.
+4. On success, frontend calls `/api/payments/confirm` to reconcile our DB row.
+5. React Query invalidates `paymentsKeys.all`; history refreshes.
+
+**Security & PCI scope:**
+
+- Card data is collected entirely inside Stripe Elements — it never touches React state or our backend.
+- The publishable key (`VITE_STRIPE_PUBLISHABLE_KEY`) is public by Stripe's design and is the only Stripe secret on the client.
+- We never log Stripe keys.
+- The Stripe SDK is loaded on demand from `js.stripe.com` (not bundled), keeping our PCI scope minimal.
+- When `VITE_STRIPE_PUBLISHABLE_KEY` is empty, the form renders a clear "not configured" state instead of failing silently.
+
+**Test mode setup:**
+
+1. Create a Stripe account, switch to test mode.
+2. Copy the **publishable test key** (`pk_test_…`) into `.env` as `VITE_STRIPE_PUBLISHABLE_KEY`.
+3. Use Stripe's test cards: `4242 4242 4242 4242` (success), `4000 0027 6000 3184` (requires SCA), `4000 0000 0000 0002` (declined).
+
+## Production Polish (Phase 8)
+
+### Code splitting
+
+Every route is loaded via `React.lazy` in `src/App.tsx`. The entry bundle ships only the routing skeleton + auth guard; everything else fetches on navigate. A single `<Suspense fallback>` (`src/components/feedback/RouteFallback.tsx`) covers the wait.
+
+### Vendor chunking
+
+Heavy third-party libs are pulled into stable vendor chunks via `build.rollupOptions.output.manualChunks` in `vite.config.ts`:
+
+| Chunk             | Contents                                                              | Used by     |
+| ----------------- | --------------------------------------------------------------------- | ----------- |
+| `vendor-react`    | react, react-dom, react-router-dom                                    | always      |
+| `vendor-query`    | @tanstack/react-query, zustand                                        | always      |
+| `vendor-forms`    | react-hook-form, @hookform/resolvers, zod                             | forms only  |
+| `vendor-tables`   | @tanstack/react-table, @tanstack/react-virtual                        | list/kanban |
+| `vendor-dnd`      | @dnd-kit/\*                                                           | kanban only |
+| `vendor-markdown` | react-markdown, react-syntax-highlighter, remark-gfm, rehype-sanitize | chat only   |
+
+`vendor-markdown` is the heaviest (~270 kB gzip) and only fetches when a user opens `/chat`. Future optimization: lazy-load `react-syntax-highlighter` inside the chat message renderer.
+
+### Error boundary
+
+`src/components/feedback/ErrorBoundary.tsx` wraps `<BrowserRouter>`. Any render-phase exception shows a recovery surface (Try again / Reload) instead of a blank screen. Async errors are handled by React Query `onError` + `sonner` toasts.
+
+### Accessibility
+
+- **Skip link** (`src/components/layout/SkipLink.tsx`) — visually hidden, focus-revealed, jumps to `#main-content`.
+- **`<main>` landmark** with `tabIndex={-1}` so the skip target is focusable.
+- **`aria-label` on the sidebar** for screen readers.
+- **`aria-busy` + `aria-live="polite"`** on route fallbacks and loading lists.
+- **`role="alert"`** on error surfaces and form validation messages.
+- **`aria-required` / `aria-invalid`** on payment form inputs.
+- **Status badges** carry `role="status"` with descriptive `aria-label`.
+- **Focus rings** preserved on every interactive element (`focus-visible:ring-2 focus-visible:ring-ring`).
+- **Color contrast** — semantic status colors meet WCAG AA against card/foreground backgrounds in both light and dark mode.
+
+### 404 page
+
+`src/routes/notFound.tsx` replaces the old silent redirect. Mounted inside `<AppShell>` so the navigation chrome stays consistent.
+
+## Deployment
+
+### Environment variables
+
+| Variable                      | Required | Notes                                                                  |
+| ----------------------------- | -------- | ---------------------------------------------------------------------- |
+| `VITE_API_BASE_URL`           | yes      | Backend origin (e.g. `https://api.day1.build`). Must be a valid URL.   |
+| `VITE_ENV`                    | no       | `development` \| `staging` \| `production`. Defaults to `development`. |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | no       | Stripe publishable key. Empty disables payments UI gracefully.         |
+
+All `VITE_*` variables are **public** — they're embedded in the bundle. Never put secrets (Stripe **secret** key, JWT signing key, DB password) in a `VITE_*` variable.
+
+### Production build
+
+```bash
+pnpm install --frozen-lockfile
+pnpm type-check
+pnpm lint
+pnpm test
+pnpm build
+```
+
+Artifacts land in `dist/`. Source maps are emitted as sibling `*.map` files — keep them on the server for error tracking but they're not served unless requested.
+
+### Preview the production build locally
+
+```bash
+pnpm preview  # serves dist/ on http://localhost:4173
+```
+
+### Deploy to `day1.build` (dao1-earth server)
+
+Target path: `/opt/dao1/apps/manager/` (Caddy serves this directory).
+
+```bash
+# From a workstation with SSH access to dao1-earth
+rsync -avz --delete \
+  --exclude='*.map' \
+  dist/ dao1-earth:/opt/dao1/apps/manager/
+```
+
+(Keep source maps off the public path if `day1.build` is internet-facing. Upload them to your error tracker instead.)
+
+### Caddy configuration
+
+The app is a single-page app, so Caddy must rewrite unmatched paths back to `index.html`:
+
+```caddy
+day1.build {
+    root * /opt/dao1/apps/manager
+    encode zstd gzip
+    try_files {path} /index.html
+    file_server
+    # Long-cache hashed assets, no-cache index.html
+    @assets path /assets/*
+    header @assets Cache-Control "public, max-age=31536000, immutable"
+    header /index.html Cache-Control "no-cache"
+}
+```
+
+Reload Caddy after edits: `sudo systemctl reload caddy`.
+
+### Smoke checklist on production
+
+1. `https://day1.build/` loads, redirects to `/dashboard` (or `/login` if unauthenticated).
+2. Login works, refresh flow keeps the session across reloads.
+3. Each top-level nav item navigates without a hard refresh.
+4. Network tab shows one route chunk fetched per navigation (code splitting working).
+5. `/payments` shows form + history; submitting a Stripe test card succeeds (test mode).
+6. Direct-visit `/payments/<id>` deep link works (Caddy SPA rewrite working).
+7. Visiting `/__definitely-not-a-real-route` shows the custom 404.
+8. Lighthouse audit on `/dashboard`: Performance, Accessibility, Best Practices ≥ 90.
+
+### Performance targets
+
+Measured via Lighthouse (mobile, simulated throttling) on a warm build:
+
+- **Performance** ≥ 90 — assisted by route splitting + vendor chunking.
+- **Accessibility** ≥ 90 — landmarks, contrast, skip link, form labels.
+- **Best Practices** ≥ 90 — HTTPS, no console errors, modern image formats (when applicable).
+- **SEO** — not a target; this is an authenticated SaaS app.
+
+Key caveat: the `/chat` route fetches `vendor-markdown` (~270 kB gzip) on first visit. That's fine for the chat experience, but means a Lighthouse audit _of the chat page_ will look heavier than the dashboard. Measure on `/dashboard` for the public-facing performance number.
+
+## Changelog
+
+### v1.0.0 — Launch (Phase 8)
+
+- **Added:** Payments feature with Stripe Elements (`/payments`, `/payments/:id`).
+- **Added:** Route-level code splitting via `React.lazy` + Suspense fallback.
+- **Added:** Vendor chunking in `vite.config.ts` (react/query/forms/tables/dnd/markdown).
+- **Added:** Top-level `ErrorBoundary` wrapping the router.
+- **Added:** Custom 404 page at `src/routes/notFound.tsx`.
+- **Added:** Accessible skip link + `<main>` landmark with focus target.
+- **Added:** `VITE_STRIPE_PUBLISHABLE_KEY` env variable.
+- **Changed:** Entry bundle dropped from ~1.5 MB to ~79 kB (gzip ~24 kB) by deferring route code.
+- **Changed:** Unknown routes now render a 404 instead of silently redirecting to `/dashboard`.
+- **Tests:** Added 5 unit tests for payment amount formatting/parsing (total 121 passing).
+
+### v0.8.0 — Dashboard (Phase 7)
+
+Portfolio dashboard with 5 widgets.
+
+### v0.7.0 — Properties (Phase 6)
+
+Multi-unit property management + rent roll.
+
+### v0.6.0 — Contacts (Phase 5)
+
+Full CRUD contact management with 7 types.
+
+### v0.5.0 — Documents (Phase 4)
+
+List, kanban, and editor for bids/invoices/estimates/work orders/proposals.
+
+### v0.4.0 — AI Chat (Phase 3)
+
+Streaming chat with markdown rendering and multi-session sidebar.
+
+### v0.3.0 — Settings (Phase 2)
+
+General / AI / Branding / Team tabs with server-side health probe.
+
+### v0.2.0 — Auth (Phase 1)
+
+Login / register / refresh with `RequireAuth` guard.
+
+### v0.1.0 — Scaffold (Phase 0)
+
+Vite + React + TS + Tailwind + shadcn + ESLint + Prettier + Vitest.
 
 ## License
 

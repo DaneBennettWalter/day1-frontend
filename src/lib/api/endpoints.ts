@@ -32,4 +32,10 @@ export const endpoints = {
     stats: '/api/dashboard/stats',
     financials: '/api/dashboard/financials',
   },
+  payments: {
+    list: '/api/payments',
+    get: (id: string) => `/api/payments/${id}`,
+    createIntent: '/api/payments/create-intent',
+    confirm: '/api/payments/confirm',
+  },
 } as const

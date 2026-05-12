@@ -4,7 +4,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 import { useRegister } from '@/features/auth/hooks'
-import { registerSchema, type RegisterFormValues } from '@/features/auth/schemas'
+import {
+  registerSchema,
+  type RegisterFormValues,
+} from '@/features/auth/schemas'
 import { ApiError } from '@/lib/api/errors'
 
 export default function RegisterRoute() {
@@ -26,7 +29,9 @@ export default function RegisterRoute() {
       navigate('/dashboard', { replace: true })
     } catch (err) {
       const msg =
-        err instanceof ApiError ? err.message : 'Registration failed. Try again.'
+        err instanceof ApiError
+          ? err.message
+          : 'Registration failed. Try again.'
       toast.error(msg)
     }
   })
@@ -35,7 +40,9 @@ export default function RegisterRoute() {
     <div className="w-full max-w-md rounded-lg border bg-card p-8 shadow-sm">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Create your account</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Get started in seconds</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Get started in seconds
+        </p>
       </div>
 
       <form
@@ -59,7 +66,11 @@ export default function RegisterRoute() {
             {...register('name')}
           />
           {errors.name && (
-            <p id="name-error" role="alert" className="mt-1 text-sm text-destructive">
+            <p
+              id="name-error"
+              role="alert"
+              className="mt-1 text-sm text-destructive"
+            >
               {errors.name.message}
             </p>
           )}
@@ -79,14 +90,21 @@ export default function RegisterRoute() {
             {...register('email')}
           />
           {errors.email && (
-            <p id="email-error" role="alert" className="mt-1 text-sm text-destructive">
+            <p
+              id="email-error"
+              role="alert"
+              className="mt-1 text-sm text-destructive"
+            >
               {errors.email.message}
             </p>
           )}
         </div>
 
         <div>
-          <label htmlFor="password" className="mb-1.5 block text-sm font-medium">
+          <label
+            htmlFor="password"
+            className="mb-1.5 block text-sm font-medium"
+          >
             Password
           </label>
           <input
@@ -99,7 +117,11 @@ export default function RegisterRoute() {
             {...register('password')}
           />
           {errors.password && (
-            <p id="password-error" role="alert" className="mt-1 text-sm text-destructive">
+            <p
+              id="password-error"
+              role="alert"
+              className="mt-1 text-sm text-destructive"
+            >
               {errors.password.message}
             </p>
           )}
@@ -117,7 +139,10 @@ export default function RegisterRoute() {
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have an account?{' '}
-        <Link to="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
+        <Link
+          to="/login"
+          className="font-medium text-foreground underline-offset-4 hover:underline"
+        >
           Sign in
         </Link>
       </p>

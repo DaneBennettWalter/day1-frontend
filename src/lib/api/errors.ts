@@ -6,7 +6,12 @@ export class ApiError extends Error {
   public readonly code: string | undefined
   public readonly details: unknown
 
-  constructor(message: string, status: number, code?: string, details?: unknown) {
+  constructor(
+    message: string,
+    status: number,
+    code?: string,
+    details?: unknown
+  ) {
     super(message)
     this.name = 'ApiError'
     this.status = status
@@ -18,7 +23,9 @@ export class ApiError extends Error {
     let body: unknown = null
     const contentType = res.headers.get('content-type') ?? ''
     try {
-      body = contentType.includes('application/json') ? await res.json() : await res.text()
+      body = contentType.includes('application/json')
+        ? await res.json()
+        : await res.text()
     } catch {
       body = null
     }
@@ -30,7 +37,8 @@ export class ApiError extends Error {
       res.statusText ||
       `HTTP ${res.status}`
 
-    const code = isRecord(body) && typeof body.code === 'string' ? body.code : undefined
+    const code =
+      isRecord(body) && typeof body.code === 'string' ? body.code : undefined
 
     return new ApiError(message, res.status, code, body)
   }

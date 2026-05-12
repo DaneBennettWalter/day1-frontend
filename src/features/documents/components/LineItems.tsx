@@ -154,7 +154,8 @@ function LineItemRow({ index, control, register, errors, onRemove }: RowProps) {
           {...register(`lineItems.${index}.description`)}
           className={cn(
             'h-9',
-            rowErrors?.description && 'border-destructive focus:ring-destructive'
+            rowErrors?.description &&
+              'border-destructive focus:ring-destructive'
           )}
         />
         {rowErrors?.description ? (

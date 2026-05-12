@@ -158,11 +158,7 @@ export function PrintView({ doc }: { doc: Document }) {
             value={formatCurrency(totals.overhead)}
           />
           <div className="border-t border-black/20 pt-1">
-            <Row
-              label="Total"
-              value={formatCurrency(totals.total)}
-              strong
-            />
+            <Row label="Total" value={formatCurrency(totals.total)} strong />
           </div>
         </div>
       </section>
@@ -177,10 +173,20 @@ export function PrintView({ doc }: { doc: Document }) {
   )
 }
 
-function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+function Row({
+  label,
+  value,
+  strong,
+}: {
+  label: string
+  value: string
+  strong?: boolean
+}) {
   return (
     <div className="flex items-center justify-between">
-      <span className={strong ? 'text-sm font-semibold' : 'text-xs text-black/60'}>
+      <span
+        className={strong ? 'text-sm font-semibold' : 'text-xs text-black/60'}
+      >
         {label}
       </span>
       <span

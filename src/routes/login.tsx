@@ -63,14 +63,21 @@ export default function LoginRoute() {
             {...register('email')}
           />
           {errors.email && (
-            <p id="email-error" role="alert" className="mt-1 text-sm text-destructive">
+            <p
+              id="email-error"
+              role="alert"
+              className="mt-1 text-sm text-destructive"
+            >
               {errors.email.message}
             </p>
           )}
         </div>
 
         <div>
-          <label htmlFor="password" className="mb-1.5 block text-sm font-medium">
+          <label
+            htmlFor="password"
+            className="mb-1.5 block text-sm font-medium"
+          >
             Password
           </label>
           <input
@@ -83,7 +90,11 @@ export default function LoginRoute() {
             {...register('password')}
           />
           {errors.password && (
-            <p id="password-error" role="alert" className="mt-1 text-sm text-destructive">
+            <p
+              id="password-error"
+              role="alert"
+              className="mt-1 text-sm text-destructive"
+            >
               {errors.password.message}
             </p>
           )}
@@ -101,7 +112,10 @@ export default function LoginRoute() {
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}
-        <Link to="/register" className="font-medium text-foreground underline-offset-4 hover:underline">
+        <Link
+          to="/register"
+          className="font-medium text-foreground underline-offset-4 hover:underline"
+        >
           Create one
         </Link>
       </p>

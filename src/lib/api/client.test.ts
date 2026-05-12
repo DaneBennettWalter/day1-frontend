@@ -9,7 +9,7 @@ function mockFetchOnce(status: number, body?: unknown): void {
     new Response(body !== undefined ? JSON.stringify(body) : null, {
       status,
       headers: body !== undefined ? { 'content-type': 'application/json' } : {},
-    }),
+    })
   ) as unknown as typeof fetch
 }
 
@@ -32,7 +32,7 @@ describe('api client', () => {
       new Response(JSON.stringify({ ok: true }), {
         status: 200,
         headers: { 'content-type': 'application/json' },
-      }),
+      })
     )
     globalThis.fetch = spy as unknown as typeof fetch
 
@@ -66,14 +66,14 @@ describe('api client', () => {
           new Response(JSON.stringify({ message: 'unauthorized' }), {
             status: 401,
             headers: { 'content-type': 'application/json' },
-          }),
+          })
         )
       }
       return Promise.resolve(
         new Response(JSON.stringify({ ok: true }), {
           status: 200,
           headers: { 'content-type': 'application/json' },
-        }),
+        })
       )
     }) as unknown as typeof fetch
 
@@ -115,7 +115,7 @@ describe('api client', () => {
         new Response(JSON.stringify({ message: 'nope' }), {
           status: 401,
           headers: { 'content-type': 'application/json' },
-        }),
+        })
       )
     }) as unknown as typeof fetch
 

@@ -35,10 +35,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, KanbanSquare, List, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import {
-  useChangeDocumentStatus,
-  useDocumentsList,
-} from '../hooks'
+import { useChangeDocumentStatus, useDocumentsList } from '../hooks'
 import { formatCurrency } from '../calculations'
 import {
   DOCUMENT_STATUSES,
@@ -72,7 +69,7 @@ export function Kanban() {
   }, [documents])
 
   const activeDoc = activeId
-    ? documents.find((d) => d.id === activeId) ?? null
+    ? (documents.find((d) => d.id === activeId) ?? null)
     : null
 
   const sensors = useSensors(
@@ -256,7 +253,13 @@ function DraggableCard({ doc, dimmed }: DraggableCardProps) {
   )
 }
 
-function DocumentCard({ doc, dragging = false }: { doc: Document; dragging?: boolean }) {
+function DocumentCard({
+  doc,
+  dragging = false,
+}: {
+  doc: Document
+  dragging?: boolean
+}) {
   return (
     <div
       className={cn(
@@ -274,7 +277,9 @@ function DocumentCardBody({ doc }: { doc: Document }) {
     <div className="min-w-0">
       <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">
         <span>{DOCUMENT_TYPE_LABELS[doc.type]}</span>
-        {doc.number ? <span className="font-mono">\u00b7 {doc.number}</span> : null}
+        {doc.number ? (
+          <span className="font-mono">\u00b7 {doc.number}</span>
+        ) : null}
       </div>
       <div className="mt-1 line-clamp-2 text-sm font-medium">
         {doc.title || '(untitled)'}
@@ -293,4 +298,3 @@ function DocumentCardBody({ doc }: { doc: Document }) {
     </div>
   )
 }
-

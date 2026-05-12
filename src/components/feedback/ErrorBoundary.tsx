@@ -1,8 +1,22 @@
+/**
+ * Top-level error boundary.
+ *
+ * Catches any unhandled render-phase error and renders a recovery
+ * surface so we never show a blank white screen. We log to console
+ * (and any wired-up Sentry/console transport) — but never to the user.
+ *
+ * Note: error boundaries only catch render errors. Async errors are
+ * handled by React Query's `onError` + the toast system.
+ */
+
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { AlertTriangle, RefreshCcw } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 interface Props {
   children: ReactNode
-  fallback?: ReactNode
+  /** Optional custom fallback. */
+  fallback?: (error: Error, reset: () => void) => ReactNode
 }
 
 interface State {
@@ -17,8 +31,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    console.error('ErrorBoundary caught error:', error, info)
-    // TODO: report to Sentry once configured.
+    console.error('[ErrorBoundary]', error, info.componentStack)
   }
 
   reset = (): void => {
@@ -26,23 +39,35 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   render(): ReactNode {
-    if (this.state.error) {
-      if (this.props.fallback) return this.props.fallback
-      return (
-        <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
-          <h1 className="text-2xl font-semibold">Something went wrong</h1>
-          <p className="max-w-md text-muted-foreground">
-            {this.state.error.message}
+    if (!this.state.error) return this.props.children
+    if (this.props.fallback)
+      return this.props.fallback(this.state.error, this.reset)
+    return (
+      <div
+        role="alert"
+        className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-4 p-6 text-center"
+      >
+        <AlertTriangle
+          className="h-10 w-10 text-destructive"
+          aria-hidden="true"
+        />
+        <div>
+          <h1 className="text-lg font-semibold">Something broke.</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {this.state.error.message ||
+              'An unexpected error occurred. Try refreshing.'}
           </p>
-          <button
-            onClick={this.reset}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-          >
-            Try again
-          </button>
         </div>
-      )
-    }
-    return this.props.children
+        <div className="flex gap-2">
+          <Button onClick={this.reset} variant="default">
+            <RefreshCcw className="mr-2 h-4 w-4" aria-hidden="true" />
+            Try again
+          </Button>
+          <Button onClick={() => window.location.reload()} variant="outline">
+            Reload page
+          </Button>
+        </div>
+      </div>
+    )
   }
 }

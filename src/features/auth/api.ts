@@ -1,11 +1,6 @@
 import { request } from '@/lib/api/client'
 import { endpoints } from '@/lib/api/endpoints'
-import type {
-  AuthResponse,
-  LoginInput,
-  RegisterInput,
-  User,
-} from './types'
+import type { AuthResponse, LoginInput, RegisterInput, User } from './types'
 
 export const authApi = {
   login(input: LoginInput): Promise<AuthResponse> {

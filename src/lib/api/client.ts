@@ -41,7 +41,7 @@ export interface RequestOptions {
  */
 export async function request<T = unknown>(
   path: string,
-  opts: RequestOptions = {},
+  opts: RequestOptions = {}
 ): Promise<T> {
   return doRequest<T>(path, opts, false)
 }
@@ -49,7 +49,7 @@ export async function request<T = unknown>(
 async function doRequest<T>(
   path: string,
   opts: RequestOptions,
-  isRetry: boolean,
+  isRetry: boolean
 ): Promise<T> {
   const { method = 'GET', body, signal, auth = true, headers = {} } = opts
 
@@ -78,7 +78,7 @@ async function doRequest<T>(
     throw new ApiError(
       err instanceof Error ? err.message : 'Network error',
       0,
-      'NETWORK_ERROR',
+      'NETWORK_ERROR'
     )
   }
 

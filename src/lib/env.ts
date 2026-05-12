@@ -5,6 +5,11 @@ const schema = z.object({
   VITE_ENV: z
     .enum(['development', 'staging', 'production'])
     .default('development'),
+  /**
+   * Stripe publishable key. Safe to expose to the browser by design
+   * (Stripe explicitly publishes these). Empty disables payments UI.
+   */
+  VITE_STRIPE_PUBLISHABLE_KEY: z.string().default(''),
 })
 
 const parsed = schema.safeParse(import.meta.env)

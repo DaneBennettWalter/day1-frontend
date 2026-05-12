@@ -156,10 +156,7 @@ export function DocumentList() {
       ) : documents.length === 0 ? (
         <EmptyState />
       ) : (
-        <DocumentsTable
-          documents={documents}
-          fetching={isFetching}
-        />
+        <DocumentsTable documents={documents} fetching={isFetching} />
       )}
     </div>
   )
@@ -243,7 +240,9 @@ function DocumentsTable({ documents, fetching }: TableProps) {
       {
         accessorKey: 'status',
         header: 'Status',
-        cell: (info) => <StatusBadge status={info.getValue<DocumentStatus>()} />,
+        cell: (info) => (
+          <StatusBadge status={info.getValue<DocumentStatus>()} />
+        ),
         size: 110,
       },
       {
@@ -302,10 +301,7 @@ function DocumentsTable({ documents, fetching }: TableProps) {
         {fetching ? ' \u00b7 updating\u2026' : ''}
         {shouldVirtualize ? ' \u00b7 virtualized' : ''}
       </div>
-      <div
-        ref={parentRef}
-        className="max-h-[70vh] overflow-auto"
-      >
+      <div ref={parentRef} className="max-h-[70vh] overflow-auto">
         <table className="w-full text-sm">
           <thead className="sticky top-0 z-10 bg-card text-xs uppercase tracking-wider text-muted-foreground shadow-[inset_0_-1px_0] shadow-border">
             {table.getHeaderGroups().map((hg) => (
@@ -354,7 +350,9 @@ function DocumentsTable({ documents, fetching }: TableProps) {
                 return (
                   <tr
                     key={row.id}
-                    onClick={() => navigate(`/documents/${row.original.id}/edit`)}
+                    onClick={() =>
+                      navigate(`/documents/${row.original.id}/edit`)
+                    }
                     className="absolute left-0 right-0 cursor-pointer border-b hover:bg-secondary/50"
                     style={{
                       top: 0,
@@ -395,7 +393,10 @@ function DocumentsTable({ documents, fetching }: TableProps) {
                       style={{ width: cell.column.columnDef.size }}
                       className="px-3 py-3 align-middle"
                     >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </td>
                   ))}
                 </tr>

@@ -13,7 +13,7 @@ function renderWithRouter(initialPath: string, element: React.ReactNode) {
         <Route path="/protected" element={element} />
         <Route path="/public" element={element} />
       </Routes>
-    </MemoryRouter>,
+    </MemoryRouter>
   )
 }
 

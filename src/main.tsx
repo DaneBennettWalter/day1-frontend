@@ -28,5 +28,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Toaster />
       </QueryClientProvider>
     </ErrorBoundary>
-  </React.StrictMode>,
+  </React.StrictMode>
 )

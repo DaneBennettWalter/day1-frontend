@@ -51,11 +51,14 @@ describe('auth store', () => {
   })
 
   it('refresh is single-flight: concurrent calls share one promise', async () => {
-    let resolve: (v: { user: { id: string; email: string; name: string }; accessToken: string }) => void = () => {}
+    let resolve: (v: {
+      user: { id: string; email: string; name: string }
+      accessToken: string
+    }) => void = () => {}
     mockedRefresh.mockReturnValue(
       new Promise((r) => {
         resolve = r
-      }),
+      })
     )
 
     const p1 = useAuthStore.getState().refresh()

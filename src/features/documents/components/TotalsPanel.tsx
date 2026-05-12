@@ -12,11 +12,20 @@
 
 import { useMemo } from 'react'
 import { useWatch, type Control } from 'react-hook-form'
-import { computeTotals, formatCurrency, formatPercent, splitByKind } from '../calculations'
+import {
+  computeTotals,
+  formatCurrency,
+  formatPercent,
+  splitByKind,
+} from '../calculations'
 import type { DocumentInputForm } from '../schemas'
 import type { LineItem } from '../types'
 
-export function TotalsPanel({ control }: { control: Control<DocumentInputForm> }) {
+export function TotalsPanel({
+  control,
+}: {
+  control: Control<DocumentInputForm>
+}) {
   const lineItems = useWatch({ control, name: 'lineItems' })
   const taxRate = useWatch({ control, name: 'taxRate' })
   const overheadRate = useWatch({ control, name: 'overheadRate' })

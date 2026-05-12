@@ -4,7 +4,11 @@ export interface User {
   name: string
 }
 
-export type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'unauthenticated'
+export type AuthStatus =
+  | 'idle'
+  | 'loading'
+  | 'authenticated'
+  | 'unauthenticated'
 
 export interface Session {
   user: User

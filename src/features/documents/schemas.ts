@@ -28,7 +28,9 @@ const TYPES: readonly DocumentType[] = [
   'change_order',
 ]
 
-export const documentTypeSchema = z.enum(TYPES as [DocumentType, ...DocumentType[]])
+export const documentTypeSchema = z.enum(
+  TYPES as [DocumentType, ...DocumentType[]]
+)
 
 export const documentStatusSchema = z.enum(
   DOCUMENT_STATUSES as unknown as [DocumentStatus, ...DocumentStatus[]]

@@ -203,7 +203,9 @@ export function parseAiDocument(
   if (dueDate) out.dueDate = dueDate
 
   const paymentTerms =
-    asString(root.paymentTerms) ?? asString(root.payment_terms) ?? asString(root.terms)
+    asString(root.paymentTerms) ??
+    asString(root.payment_terms) ??
+    asString(root.terms)
   if (paymentTerms) out.paymentTerms = paymentTerms
 
   const assignedTo = asString(root.assignedTo) ?? asString(root.assigned_to)

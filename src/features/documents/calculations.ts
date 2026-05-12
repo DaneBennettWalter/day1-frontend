@@ -25,7 +25,9 @@ function toNum(v: unknown): number {
   return n
 }
 
-export function lineTotal(item: Pick<LineItem, 'quantity' | 'unitPrice'>): number {
+export function lineTotal(
+  item: Pick<LineItem, 'quantity' | 'unitPrice'>
+): number {
   return roundCents(toNum(item.quantity) * toNum(item.unitPrice))
 }
 

@@ -13,10 +13,7 @@ import { useMemo } from 'react'
 import { FullPageSpinner } from '@/components/feedback/FullPageSpinner'
 import { DocumentEditor } from '@/features/documents/components/DocumentEditor'
 import { PrintView } from '@/features/documents/components/PrintView'
-import {
-  useDocument,
-  useUpdateDocument,
-} from '@/features/documents/hooks'
+import { useDocument, useUpdateDocument } from '@/features/documents/hooks'
 import type { Document, DocumentInput } from '@/features/documents/types'
 
 function toEditorInput(doc: Document): DocumentInput {
@@ -45,10 +42,7 @@ export default function EditDocumentRoute() {
   const { data, isLoading, error } = useDocument(id)
   const update = useUpdateDocument(id)
 
-  const initial = useMemo(
-    () => (data ? toEditorInput(data) : null),
-    [data]
-  )
+  const initial = useMemo(() => (data ? toEditorInput(data) : null), [data])
 
   if (isLoading) return <FullPageSpinner />
   if (error) {
