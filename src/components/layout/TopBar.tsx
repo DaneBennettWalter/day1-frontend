@@ -11,7 +11,7 @@ export function TopBar() {
         {user ? `Signed in as ${user.email}` : ''}
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-sm font-medium">{user?.name}</span>
+        <span className="text-sm font-medium">{user?.displayName}</span>
         <button
           type="button"
           onClick={() => void logout()}

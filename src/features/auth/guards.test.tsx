@@ -35,7 +35,7 @@ describe('<RequireAuth>', () => {
 
   it('renders children when authenticated', () => {
     useAuthStore.setState({
-      user: { id: 'u1', email: 'a@b.com', name: 'A' },
+      user: { id: 'u1', email: 'a@b.com', displayName: 'A' },
       accessToken: 't',
       status: 'authenticated',
     })
@@ -54,7 +54,7 @@ describe('<RequireAuth>', () => {
 describe('<RedirectIfAuthed>', () => {
   it('redirects authenticated users to /dashboard', () => {
     useAuthStore.setState({
-      user: { id: 'u1', email: 'a@b.com', name: 'A' },
+      user: { id: 'u1', email: 'a@b.com', displayName: 'A' },
       accessToken: 't',
       status: 'authenticated',
     })

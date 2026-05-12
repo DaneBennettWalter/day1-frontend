@@ -1,7 +1,11 @@
 export interface User {
   id: string
   email: string
-  name: string
+  displayName: string
+  avatarUrl?: string | null
+  bio?: string | null
+  role?: string
+  createdAt?: string
 }
 
 export type AuthStatus =

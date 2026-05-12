@@ -22,7 +22,7 @@ export default function DashboardPage() {
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
         <p className="mt-1 text-muted-foreground">
-          Welcome back{user ? `, ${user.name}` : ''}.
+          Welcome back{user ? `, ${user.displayName}` : ''}.
         </p>
       </div>
 

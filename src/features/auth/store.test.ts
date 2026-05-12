@@ -28,7 +28,7 @@ beforeEach(() => {
 describe('auth store', () => {
   it('setSession populates user, token, and authenticated status', () => {
     useAuthStore.getState().setSession({
-      user: { id: 'u1', email: 'a@b.com', name: 'A' },
+      user: { id: 'u1', email: 'a@b.com', displayName: 'A' },
       accessToken: 'tok',
     })
     const s = useAuthStore.getState()
@@ -39,7 +39,7 @@ describe('auth store', () => {
 
   it('clearSession resets state to unauthenticated', () => {
     useAuthStore.setState({
-      user: { id: 'u1', email: 'a@b.com', name: 'A' },
+      user: { id: 'u1', email: 'a@b.com', displayName: 'A' },
       accessToken: 'tok',
       status: 'authenticated',
     })
@@ -52,7 +52,7 @@ describe('auth store', () => {
 
   it('refresh is single-flight: concurrent calls share one promise', async () => {
     let resolve: (v: {
-      user: { id: string; email: string; name: string }
+      user: { id: string; email: string; displayName: string }
       accessToken: string
     }) => void = () => {}
     mockedRefresh.mockReturnValue(
@@ -70,7 +70,7 @@ describe('auth store', () => {
     expect(p2).toBe(p3)
 
     resolve({
-      user: { id: 'u1', email: 'a@b.com', name: 'A' },
+      user: { id: 'u1', email: 'a@b.com', displayName: 'A' },
       accessToken: 'newtok',
     })
 
@@ -91,14 +91,14 @@ describe('auth store', () => {
 
   it('refreshPromise is cleared after settlement so subsequent refreshes can run', async () => {
     mockedRefresh.mockResolvedValueOnce({
-      user: { id: 'u1', email: 'a@b.com', name: 'A' },
+      user: { id: 'u1', email: 'a@b.com', displayName: 'A' },
       accessToken: 't1',
     })
     await useAuthStore.getState().refresh()
     expect(useAuthStore.getState().refreshPromise).toBeNull()
 
     mockedRefresh.mockResolvedValueOnce({
-      user: { id: 'u1', email: 'a@b.com', name: 'A' },
+      user: { id: 'u1', email: 'a@b.com', displayName: 'A' },
       accessToken: 't2',
     })
     await useAuthStore.getState().refresh()

@@ -14,7 +14,11 @@ export const authApi = {
   register(input: RegisterInput): Promise<AuthResponse> {
     return request<AuthResponse>(endpoints.auth.register, {
       method: 'POST',
-      body: input,
+      body: {
+        email: input.email,
+        password: input.password,
+        displayName: input.name,
+      },
       auth: false,
     })
   },
